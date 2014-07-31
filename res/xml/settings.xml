@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" >
+
+     <ListPreference 
+     android:key="gender_select"
+     android:title="@string/changeGender"
+     android:entries="@array/gender_select_array"
+     android:entryValues="@array/gender_select_array">
+     
+     </ListPreference >
+     
+     <ListPreference
+     android:key="man_color"
+     android:title="@string/selectColorForMan"
+     android:entries="@array/color_array"
+     android:entryValues="@array/color_array_values">
+     </ListPreference>
+     
+     <ListPreference
+     android:key="woman_color"
+     android:title="@string/selectColorForWoman"
+     android:entries="@array/color_array"
+     android:entryValues="@array/color_array_values">
+     </ListPreference>
+     
+</PreferenceScreen>

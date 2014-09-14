@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.net.ContentHandler;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -20,6 +21,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlSerializer;
 
 import android.database.Cursor;
 import android.os.Environment;
@@ -29,76 +31,104 @@ import android.widget.Toast;
 
 public class XMLHelper {
 	   //list of tags
-	   public final String contactsListTag = "<CONTACTS_LIST>";
-	   public final String contactsListTagEnd = "</CONTACTS_LIST>";
-	   public final String contactTag = "<CONTACT>";
-	   public final String contactTagEnd = "</CONTACT>";
-	   public final String idTag = "<ID>";
-	   public final String idTagEnd = "</ID>";
-	   public final String firstNameTag = "<FIRST_NAME>";
-	   public final String firstNameTagEnd = "</FIRST_NAME>";
-	   public final String lastNameTag = "<LAST_NAME>";
-	   public final String lastNameTagEnd = "</LAST_NAME>";
-	   public final String dateOfBirthTag = "<DATE_OF_BIRTH>";
-	   public final String dateOfBirthTagEnd = "</DATE_OF_BIRTH>";
-	   public final String genderTag = "<GENDER>";
-	   public final String genderTagEnd = "</GENDER>";
-	   public final String addressTag = "<ADDRESS>";
-	   public final String addressTagEnd = "</ADDRESS>";
-	   public final String avatarUrlTag = "<AVATAR_URL>";
-	   public final String avatarUrlTagEnd = "</AVATAR_URL>";
+	   static public final String contactsListTag = "CONTACTS_LIST";
+	   static public final String contactTag = "CONTACT";
+	   static public final String idTag = "ID";
+	   static public final String firstNameTag = "FIRST_NAME";
+	   static public final String lastNameTag = "LAST_NAME";
+	   static public final String dateOfBirthTag = "DATE_OF_BIRTH";
+	   static public final String genderTag = "GENDER";
+	   static public final String addressTag = "ADDRESS";
+	   static public final String avatarUrlTag = "AVATAR_URL";
 	   
 	   public final String newLine = "\n";
 	   
+	   private XmlSerializer serializer;
+	   
+
+	   
 	   //method for export database to SD
 	   public void exportDatabase(DBHelper dbHelper){
-		   StringBuilder strBuilder = new StringBuilder();
-		   strBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		   strBuilder.append(contactsListTag);
+		   
+		   serializer = Xml.newSerializer();
+		   StringWriter writer = new StringWriter();
+		   try {
+			serializer.setOutput(writer);
+			serializer.startDocument("utf-8", true);
+			serializer.startTag("", contactsListTag);
+		   } catch (IllegalArgumentException e1) {
+			e1.printStackTrace();
+		   } catch (IllegalStateException e1) {
+			e1.printStackTrace();
+		   } catch (IOException e1) {
+		 	e1.printStackTrace();
+		   }
 		   Cursor cursor = dbHelper.getAllContacts();
+		   
 		   //generate XML markup
 		   for(int i = 0; i<dbHelper.countContacts(); i++){
-			   strBuilder.append(newLine +contactTag);
 			       
-			       strBuilder.append(newLine + idTag);
-			       String id = cursor.getString(0);
-			       strBuilder.append(newLine + id );
-			       strBuilder.append(newLine + idTagEnd);
-			       
-			       strBuilder.append(newLine + firstNameTag);
-			       String first_name = cursor.getString(1);
-			       strBuilder.append(newLine + first_name);
-			       strBuilder.append(newLine + firstNameTagEnd);
-			       
-			       strBuilder.append(newLine + lastNameTag);
-			       String last_name = cursor.getString(2);
-			       strBuilder.append(newLine + last_name);
-			       strBuilder.append(newLine + lastNameTagEnd);
-			       
-			       strBuilder.append(newLine + dateOfBirthTag);
-			       String date_of_birth = cursor.getString(3);
-			       strBuilder.append(newLine + date_of_birth);
-			       strBuilder.append(newLine + dateOfBirthTagEnd);
-			       
-			       strBuilder.append(newLine + genderTag);
-			       String gender = cursor.getString(4);
-			       strBuilder.append(newLine + gender);
-			       strBuilder.append(newLine + genderTagEnd);
-			       
-			       strBuilder.append(newLine + addressTag);
-			       String address = cursor.getString(5);
-			       strBuilder.append(newLine + address);
-			       strBuilder.append(newLine + addressTagEnd);
-			       
-			       strBuilder.append(newLine + avatarUrlTag);
-			       String avatar_url = cursor.getString(6);
-			       strBuilder.append(newLine + avatar_url);
-			       strBuilder.append(newLine + avatarUrlTagEnd);
-			       
-			   strBuilder.append(newLine + contactTagEnd);
+			       try {
+			    	   
+			    	serializer.startTag("", contactTag);
+			    	   
+				    String id = cursor.getString(0); 
+					serializer.startTag("", idTag);
+					serializer.text(id);
+					serializer.endTag("", idTag);
+					
+				    String first_name = cursor.getString(1);
+					serializer.startTag("", firstNameTag);
+					serializer.text(first_name);
+					serializer.endTag("", firstNameTag);
+					
+				    String last_name = cursor.getString(2);
+					serializer.startTag("", lastNameTag);
+					serializer.text(last_name);
+					serializer.endTag("", lastNameTag);
+
+				    String date_of_birth = cursor.getString(3);
+					serializer.startTag("", dateOfBirthTag);
+					serializer.text(date_of_birth);
+					serializer.endTag("", dateOfBirthTag);
+				       
+				    String gender = cursor.getString(4);
+					serializer.startTag("", genderTag);
+					serializer.text(gender);
+					serializer.endTag("", genderTag);
+					
+				    String address = cursor.getString(5);
+					serializer.startTag("", addressTag);
+					serializer.text(address);
+					serializer.endTag("", addressTag);
+					
+				    String avatar_url = cursor.getString(6);
+					serializer.startTag("", avatarUrlTag);
+					serializer.text(avatar_url);
+					serializer.endTag("", avatarUrlTag);
+					
+					serializer.endTag("", contactTag);
+					
+				   } catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				   } catch (IllegalStateException e) {
+					e.printStackTrace();
+				   } catch (IOException e) {
+					e.printStackTrace();
+				   }
 			   cursor.moveToNext();
 		   }
-		   strBuilder.append(contactsListTagEnd);
+		   
+		   try {
+			   serializer.endTag("", contactsListTag);
+			   serializer.endDocument();
+		   } catch (IllegalArgumentException e1) {
+			e1.printStackTrace();
+		   } catch (IllegalStateException e1) {
+			e1.printStackTrace();
+		   } catch (IOException e1) {
+			e1.printStackTrace();
+		   }
 		   
 		   try {
 			    File newFolder = new File(Environment.getExternalStorageDirectory(), "XML_database");
@@ -113,7 +143,7 @@ public class XMLHelper {
 			        try {
 			        	FileOutputStream fOut = new FileOutputStream(file);
                         OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-                        myOutWriter.append(strBuilder.toString());
+                        myOutWriter.append(writer.toString());
                         myOutWriter.close();
                         fOut.close();
 			        }
@@ -178,6 +208,7 @@ public class XMLHelper {
 				   avatarUrl = avatarUrl.replace("\n", "").replace("\r", "");
 				   
 				   dbHelper.insertContact(firstName, lastName, dateOfBirth, gender, address, avatarUrl);
+				   is.close();
 			   }
 			   
 			   

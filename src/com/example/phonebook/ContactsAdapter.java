@@ -19,20 +19,25 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ContactsAdapter extends CursorAdapter{
+
+	private final int KEY_ID = 1;
+
 	private LayoutInflater inflater;
 	private boolean isDelete;
-	ArrayList<String> idToDelete;
+	private ArrayList<String> idToDelete;
 	private Context context;
-	private String id;
+	private Cursor cursor;
 	
-	String manColor;
-	String womanColor;
+	private String manColor;
+	private String womanColor;
 	
 	public ContactsAdapter(Context context, Cursor c){
 		super(context,c);
 		this.context = context;
+		this.cursor = c;
 		inflater = LayoutInflater.from(context);
 		idToDelete = new ArrayList<String>();
 	}
@@ -50,34 +55,44 @@ public class ContactsAdapter extends CursorAdapter{
 	}
 	
 	@Override
+	public View getView(int position, View v, ViewGroup parent) {
+		View view;
+		cursor.moveToPosition(position);
+		if(v == null){
+			view = newView(context, cursor, parent);
+		} else{
+			view = v;
+		}
+		bindView(view, context, cursor);
+		return view;
+	}
+	
+	@Override
 	public void bindView(View v, final Context context, final Cursor cursor){
-		TextView firstNameTextView = (TextView) v.findViewById(R.id.firstNameTextView);
-		TextView lastNameTextView = (TextView) v.findViewById(R.id.lastNameTextView);
-		CheckBox toDeleteCheckbox = (CheckBox) v.findViewById(R.id.toDeleteCheckBox);
-		ImageView avatarImageView = (ImageView) v.findViewById(R.id.contact_avatar_ImageView);
 		
-		v.setTag(cursor.getString(0));
-		firstNameTextView.setText(cursor.getString(1));
-		lastNameTextView.setText(cursor.getString(2));
+		ViewHolder viewHolder = (ViewHolder) v.getTag();
+		viewHolder.id = cursor.getString(0);
+		viewHolder.firstNameTextView.setText(cursor.getString(1));
+		viewHolder.lastNameTextView.setText(cursor.getString(2));
 		//checking color for man
 		if(cursor.getString(cursor.getColumnIndex(DBHelper.GENDER)).equals(DBHelper.GENDER_MAN)){
 			if(manColor != null && !manColor.equals("")){
-				firstNameTextView.setTextColor(Color.parseColor(manColor));
-				lastNameTextView.setTextColor(Color.parseColor(manColor));
+				viewHolder.firstNameTextView.setTextColor(Color.parseColor(manColor));
+				viewHolder.lastNameTextView.setTextColor(Color.parseColor(manColor));
 			}
 		//checking color for woman
 		} else if(cursor.getString(cursor.getColumnIndex(DBHelper.GENDER)).equals(DBHelper.GENDER_WOMAN)){
 			if(womanColor != null && !womanColor.equals("")){
-				firstNameTextView.setTextColor(Color.parseColor(womanColor));
-				lastNameTextView.setTextColor(Color.parseColor(womanColor));
+				viewHolder.firstNameTextView.setTextColor(Color.parseColor(womanColor));
+				viewHolder.lastNameTextView.setTextColor(Color.parseColor(womanColor));
 			}
 		}
 
-		toDeleteCheckbox.setTag(cursor.getString(0));
-		toDeleteCheckbox.setChecked(false);
+		viewHolder.toDeleteCheckbox.setTag(cursor.getString(0));
+		viewHolder.toDeleteCheckbox.setChecked(false);
 		if(isDelete){
-			toDeleteCheckbox.setVisibility(View.VISIBLE);
-			toDeleteCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+			viewHolder.toDeleteCheckbox.setVisibility(View.VISIBLE);
+			viewHolder.toDeleteCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView,
@@ -94,15 +109,15 @@ public class ContactsAdapter extends CursorAdapter{
 				
 			});
 		} else{
-			toDeleteCheckbox.setVisibility(View.INVISIBLE);
+			viewHolder.toDeleteCheckbox.setVisibility(View.INVISIBLE);
 		}
 		
 		if(cursor.getString(cursor.getColumnIndex(DBHelper.AVATAR_URL))!=null){
 			Bitmap yourSelectedImage = BitmapFactory.decodeFile(cursor.getString(cursor.getColumnIndex(DBHelper.AVATAR_URL)));
 			if(yourSelectedImage !=null){
-				avatarImageView.setImageBitmap(Bitmap.createScaledBitmap(yourSelectedImage, 160, 120, false));
+				viewHolder.avatarImageView.setImageBitmap(Bitmap.createScaledBitmap(yourSelectedImage, 160, 120, false));
 			} else{
-				avatarImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.abc_ab_solid_dark_holo));
+				viewHolder.avatarImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.abc_ab_bottom_solid_dark_holo));
 			}
 		}
 		
@@ -112,7 +127,8 @@ public class ContactsAdapter extends CursorAdapter{
 			@Override
 			public void onClick(View v){
 				Intent intent = new Intent(context.getApplicationContext(), ViewContact.class);
-				intent.putExtra(DBHelper.ID, String.valueOf(v.getTag()));
+				ViewHolder viewHolder = (ViewHolder) v.getTag();
+				intent.putExtra(DBHelper.ID, String.valueOf(viewHolder.id));
 				context.startActivity(intent);
 				
 			}
@@ -125,6 +141,25 @@ public class ContactsAdapter extends CursorAdapter{
 	
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent){
-		return inflater.inflate(R.layout.contact, parent, false);
+		
+		ViewHolder viewHolder = new ViewHolder();
+		View view = inflater.inflate(R.layout.contact, parent, false);
+		
+		viewHolder.firstNameTextView = (TextView) view.findViewById(R.id.firstNameTextView);
+		viewHolder.lastNameTextView = (TextView) view.findViewById(R.id.lastNameTextView);
+		viewHolder.toDeleteCheckbox = (CheckBox) view.findViewById(R.id.toDeleteCheckBox);
+		viewHolder.avatarImageView = (ImageView) view.findViewById(R.id.contact_avatar_ImageView);
+		
+		view.setTag(viewHolder);
+		
+		return view;
+	}
+	
+	class ViewHolder {
+		String id;
+		TextView firstNameTextView;
+		TextView lastNameTextView;
+		CheckBox toDeleteCheckbox;
+		ImageView avatarImageView;
 	}
 }

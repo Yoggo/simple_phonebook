@@ -27,17 +27,17 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 	
-	DBHelper dbHelper;
-	ListView contactsListView;
-	ContactsAdapter contactsAdapter;
-	ArrayList<String> listIdToDelete;
-	Menu menu;
-	SharedPreferences settings;
+	private DBHelper dbHelper;
+	private ListView contactsListView;
+	private ContactsAdapter contactsAdapter;
+	private ArrayList<String> listIdToDelete;
+	private Menu menu;
+	private SharedPreferences settings;
 	
-	String genderFilter;
-	String genderSelect;
-	String manColor;
-	String womanColor;
+	private String genderFilter;
+	private String genderSelect;
+	private String manColor;
+	private String womanColor;
 	
 
     @Override

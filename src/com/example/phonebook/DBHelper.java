@@ -2,6 +2,7 @@ package com.example.phonebook;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -29,15 +30,16 @@ public class DBHelper extends SQLiteOpenHelper{
 	
 	@Override
 	public void onCreate(SQLiteDatabase db){
-		
-		db.execSQL("CREATE TABLE IF NOT EXISTS "+ CONTACT_TABLE_NAME + "("
+		String sql = "CREATE TABLE IF NOT EXISTS "+ CONTACT_TABLE_NAME + "("
 				+ ID +" integer primary key autoincrement,"
 				+ FIRST_NAME +" text,"
 				+ LAST_NAME + " text,"
 				+ DATE_OF_BIRTH + " text,"
 				+ GENDER +" text,"
 				+ ADDRESS +" text,"
-				+ AVATAR_URL +" text);");
+				+ AVATAR_URL +" text);";
+		DatabaseUtils.sqlEscapeString(sql);
+		db.execSQL(sql);
 		
 	}
 	
@@ -63,7 +65,9 @@ public class DBHelper extends SQLiteOpenHelper{
 	
 	//get all info about contact by id
 	public Cursor getInfoById(String id){
-		Cursor cursor = db.rawQuery("SELECT * FROM "+ CONTACT_TABLE_NAME +" WHERE "+ ID + " = '"+ id +"'", null);
+		String sql = "SELECT * FROM "+ CONTACT_TABLE_NAME +" WHERE "+ ID + " = '"+ id +"'";
+		DatabaseUtils.sqlEscapeString(sql);
+		Cursor cursor = db.rawQuery(sql, null);
 		if(cursor !=null){
 			cursor.moveToFirst();
 		}
@@ -73,14 +77,16 @@ public class DBHelper extends SQLiteOpenHelper{
 	
 	public void insertContact(String firstName, String lastName, String dateOfBirth,
 			                  String gender, String address, String avatar_url){
-		db.execSQL("INSERT INTO "+ CONTACT_TABLE_NAME +" (" + FIRST_NAME +","
+		String sql = "INSERT INTO "+ CONTACT_TABLE_NAME +" (" + FIRST_NAME +","
 				+ LAST_NAME + ","
 				+ DATE_OF_BIRTH + ","
 				+ GENDER + ","
 				+ ADDRESS + ","
 				+ AVATAR_URL + ") VALUES ('"+ firstName +"','"+ lastName +"','"
 						+ dateOfBirth + "','" + gender + "','" + address + "','" 
-				+ avatar_url + "')");
+				+ avatar_url + "')";
+		DatabaseUtils.sqlEscapeString(sql);
+		db.execSQL(sql);
 	}
 	
 	public void updateContact(String id, String firstName, String lastName, String dateOfBirth,
@@ -94,14 +100,18 @@ public class DBHelper extends SQLiteOpenHelper{
 	}
 	
 	public int countContacts(){
-		Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + CONTACT_TABLE_NAME, null);
+		String sql = "SELECT COUNT(*) FROM " + CONTACT_TABLE_NAME;
+		DatabaseUtils.sqlEscapeString(sql);
+		Cursor cursor = db.rawQuery(sql, null);
 		cursor.moveToFirst();
 		int count = cursor.getInt(0);
 		return count;
 	}
 	
 	public void deleteContact(String id){
-		db.execSQL("DELETE FROM " + CONTACT_TABLE_NAME + " WHERE _id = '"+ id +"'");
+		String sql = "DELETE FROM " + CONTACT_TABLE_NAME + " WHERE _id = '"+ id +"'";
+		DatabaseUtils.sqlEscapeString(sql);
+		db.execSQL(sql);
 	}
 	
 	@Override

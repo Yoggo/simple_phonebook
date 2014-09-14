@@ -20,17 +20,18 @@ import android.os.Build;
 
 public class ViewContact extends ActionBarActivity implements View.OnClickListener{
 	
-	String id;
-	DBHelper dbHelper;
+	private String id;
+	private DBHelper dbHelper;
 	
-	ImageView view_contact_avatar;
-	TextView firstNameTextView;
-	TextView lastNameTextView;
-	TextView dateOfBirthTextView;
-	TextView genderTextView;
-	TextView addressTextView;
+	private ImageView view_contact_avatar;
+	private TextView firstNameTextView;
+	private TextView lastNameTextView;
+	private TextView dateOfBirthTextView;
+	private TextView genderTextView;
+	private TextView addressTextView;
 	
-	Button backButton, editButton;
+	private Button backButton;
+	private Button editButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +44,6 @@ public class ViewContact extends ActionBarActivity implements View.OnClickListen
 		id = extras.getString(DBHelper.ID);
 		findViews();
 		bindViews();
-		
 	}
 	
 	public void findViews(){
